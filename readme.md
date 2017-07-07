@@ -1,5 +1,4 @@
-![image](https://travis-ci.org/omitobi/carbonate.svg?branch=master)
-
+[![Build Status](https://travis-ci.org/omitobi/carbonate.svg?branch=master)](https://travis-ci.org/omitobi/carbonate)
 
 
 ## Carbonate - a muscle to PHP Carbon
