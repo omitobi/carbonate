@@ -16,7 +16,7 @@ class Carbonate extends Carbon
     public function __construct($time = null, $tz = null)
     {
         date_default_timezone_set('Europe/Helsinki');
-        parent::__construct($time, $tz);
+        parent::__construct($time, $tz)->setTimezone('Europe/Helsinki');
     }
 
     public static function thisMonth($end = false)
