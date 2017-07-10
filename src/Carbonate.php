@@ -1,15 +1,11 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: omitobisam
- * Date: 07/07/2017
- * Time: 11:52
- */
-
 namespace Carbonate;
 
 
+use Closure;
 use Carbon\Carbon;
+use Carbon\CarbonInterval;
+use Illuminate\Support\Collection;
 
 class Carbonate extends Carbon
 {
@@ -42,5 +38,61 @@ class Carbonate extends Carbon
         }, $end_of_month);
 
         return $the_dates;
+    }
+
+    /**
+     * Get the difference in months using a filter closure
+     *
+     * @param Closure             $callback
+     * @param \Carbonate\Carbonate|null $dt
+     * @param bool                $abs      Get the absolute of the difference
+     *
+     * @return int
+     */
+    public function diffInMonthsFiltered(Closure $callback, Carbon $dt = null, $abs = true)
+    {
+        return $this->diffFiltered(CarbonInterval::month(), $callback, $dt, $abs);
+    }
+
+    /**
+     * Get the difference in years using a filter closure
+     *
+     * @param Closure             $callback
+     * @param \Carbon\Carbon|null $dt
+     * @param bool                $abs      Get the absolute of the difference
+     *
+     * @return int
+     */
+    public function diffInYearsFiltered(Closure $callback, Carbon $dt = null, $abs = true)
+    {
+        return $this->diffFiltered(CarbonInterval::year(), $callback, $dt, $abs);
+    }
+
+    /**
+
+     * Get the difference (of collection of Carbon dates or the count) in the given period
+     *
+     * @param \Carbonate\Carbonate |null $dt
+     * @param string $in - diff in 'days', 'months', 'years', 'hours', 'minutes', or  'seconds'
+     * @param string $incl_last - include the checked date in the difference [only when getting dates]
+     * @param string $just_diff
+     * @param bool   $abs Get the absolute of the difference for count
+     *
+     * @return Collection|array - the difference count or collection of Carbon months Start
+     */
+    public function diffIn(Carbon $dt, $in = 'months', $incl_last = false, $just_diff = false, $abs = true)
+    {
+        $time = $this;
+        if ($just_diff) {
+            return $time->{'diffIn' . ucfirst($in)}($dt, $abs);
+        }
+
+        $collector = [];
+        $time->{'diffIn'.ucfirst($in).'Filtered'}(function (Carbon $date) use (&$collector, $in){
+            $collector[] = $date->{'startOf'.substr(ucfirst($in), 0, -1)}();
+        }, $dt, $abs);
+
+        $carbon_coll = $incl_last ? collect($collector)->push($dt) : collect($collector);
+        return $carbon_coll;
     }
 }
