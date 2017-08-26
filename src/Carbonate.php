@@ -9,17 +9,25 @@ use Illuminate\Support\Collection;
 
 class Carbonate extends Carbon
 {
-    public function __construct($time = null, $tz = null)
+    public function __construct($time = null, $tz = 'Europe/Helsinki')
     {
-        date_default_timezone_set('Europe/Helsinki');
+//        date_default_timezone_set('Europe/Helsinki');
         parent::__construct($time, $tz);
     }
 
+    /**
+     * @param bool $end
+     * @return static
+     */
     public static function thisMonth($end = false)
     {
         return $end ? self::today()->copy()->endOfMonth() : self::today()->startOfMonth();
     }
 
+    /**
+     * @param array $days
+     * @return array
+     */
     public function getDatesOfDaysInMonth(array $days)
     {
         $start_of_month = $this->copy()->startOfMonth();
@@ -94,5 +102,40 @@ class Carbonate extends Carbon
 
         $carbon_coll = $incl_last ? collect($collector)->push($dt) : collect($collector);
         return $carbon_coll;
+    }
+
+
+    /**
+     *
+     * @param $moment
+     * @param $dt
+     * @param null $to
+     * @return Collection
+     */
+    private function every($moment, $dt, $to = null)
+    {
+        $result = collect();
+        $this->{'diffIn'.ucfirst($moment).'sFiltered'}(function (Carbonate $date) use ($dt, $result){
+            if($date->{'is'.ucfirst($dt)}()) {
+                $result->push($date->toDateString());
+            }
+        }, $to);
+
+        return $result;
+    }
+
+    /**
+     * Get all particular days within a difference
+     *
+     * @param string $day - day of the week e.g sunday
+     * @param Carbonate|null $to - becomes the end of the month if null
+     * @return Collection - collection of Carbonate Dates
+     */
+    public function everyDay(string $day, $to = null)
+    {
+        if ( $to == null) {
+            $to = $this->copy()->endOfMonth();
+        }
+        return $this->every('day', $day, $to);
     }
 }
