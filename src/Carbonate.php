@@ -138,4 +138,27 @@ class Carbonate extends Carbon
         }
         return $this->every('day', $day, $to);
     }
+
+
+    /**
+     * Get random date(s) in the year
+     *
+     * @param Carbonate|null $end_dt
+     * @param int $amount
+     * @param string $format
+     * @return Collection - collection of Carbonate
+     */
+    public function random($amount = 1, Carbonate $end_dt = null)
+    {
+        $end_dt = $end_dt ?: Carbonate::now()->copy()->endOfYear();
+
+        return $this->diffIn($end_dt, 'days')->random($amount);
+    }
+
+    public function randomOne(Carbonate $end_dt = null, $format = 'Y-m-d H:i:s', $to_string = true)
+    {
+        $result = $this->random(1, $end_dt)->first();
+
+        return $to_string ? $result->format($format) : $result;
+    }
 }
