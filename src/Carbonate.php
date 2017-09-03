@@ -106,6 +106,7 @@ class Carbonate extends Carbon
 
 
     /**
+     * Get every particular dates within a range of dates
      *
      * @param $moment
      * @param $dt
@@ -145,7 +146,6 @@ class Carbonate extends Carbon
      *
      * @param Carbonate|null $end_dt
      * @param int $amount
-     * @param string $format
      * @return Collection - collection of Carbonate
      */
     public function random($amount = 1, Carbonate $end_dt = null)
@@ -155,10 +155,135 @@ class Carbonate extends Carbon
         return $this->diffIn($end_dt, 'days')->random($amount);
     }
 
+    /**
+     * Get any random date between the two dates
+     *
+     * @param Carbonate|null $end_dt
+     * @param string $format
+     * @param bool $to_string
+     * @return Carbonate|string - the date
+     */
     public function randomOne(Carbonate $end_dt = null, $format = 'Y-m-d H:i:s', $to_string = true)
     {
         $result = $this->random(1, $end_dt)->first();
 
+        return $to_string ? $result->format($format) : $result;
+    }
+
+    /**
+     * Get any One Monday between the dates or till the end of the year
+     *
+     * @param Carbonate|null $end_dt
+     * @param string $format
+     * @return Carbonate|string
+     */
+    public function anyMonday(Carbonate $end_dt = null, $format = 'Y-m-d H:i:s')
+    {
+        return $this->anyOne('Monday', $end_dt, $format);
+    }
+
+    /**
+     * Get any One Tuesday between the dates or till the end of the year
+     *
+     * @param Carbonate|null $end_dt
+     * @param string $format
+     * @return Carbonate|string
+     */
+    public function anyTuesday(Carbonate $end_dt = null, $format = 'Y-m-d H:i:s')
+    {
+        return $this->anyOne('Tuesday', $end_dt, $format);
+    }
+
+    /**
+     * Get any One Wednesday between the dates or till the end of the year
+     *
+     * @param Carbonate|null $end_dt
+     * @param string $format
+     * @return Carbonate|string
+     */
+    public function anyWednesday(Carbonate $end_dt = null, $format = 'Y-m-d H:i:s')
+    {
+        return $this->anyOne('Wednesday', $end_dt, $format);
+    }
+
+    /**
+     * Get any One Thursday between the dates or till the end of the year
+     *
+     * @param Carbonate|null $end_dt
+     * @param string $format
+     * @return Carbonate|string
+     */
+    public function anyThursday(Carbonate $end_dt = null, $format = 'Y-m-d H:i:s')
+    {
+        return $this->anyOne('Thursday', $end_dt, $format);
+    }
+
+    /**
+     * Get any One Friday between the dates or till the end of the year
+     *
+     * @param Carbonate|null $end_dt
+     * @param string $format
+     * @return Carbonate|string
+     */
+    public function anyFriday(Carbonate $end_dt = null, $format = 'Y-m-d H:i:s')
+    {
+        return $this->anyOne('Friday', $end_dt, $format);
+    }
+
+    /**
+     * Get any One Saturday between the dates or till the end of the year
+     *
+     * @param Carbonate|null $end_dt
+     * @param string $format
+     * @return Carbonate|string
+     */
+    public function anySaturday(Carbonate $end_dt = null, $format = 'Y-m-d H:i:s')
+    {
+        return $this->anyOne('Saturday', $end_dt, $format);
+    }
+
+    /**
+     * Get any One Sunday between the dates or till the end of the year
+     *
+     * @param Carbonate|null $end_dt
+     * @param string $format
+     * @return Carbonate|string
+     */
+    public function anySunday(Carbonate $end_dt = null, $format = 'Y-m-d H:i:s')
+    {
+        return $this->anyOne('Sunday', $end_dt, $format);
+    }
+
+
+
+    /**
+     * Get any random date(s) of the given day
+     *
+     * @param string $day
+     * @param Carbonate|null $end_dt
+     * @param int $amount
+     * @return Collection - collections of Carbonate
+     */
+    private function any($day = 'Monday', Carbonate $end_dt = null, $amount = 1)
+    {
+        $end_dt = $end_dt ?: $this->copy()->endOfYear();
+        return $result = $this->diffIn($end_dt, 'days')->filter(function (Carbonate $date, $key) use ($day){
+            return $date->{'is'.ucfirst($day)}();
+        })->random($amount);
+    }
+
+    /**
+     * Get any of the week's day in the range of Dates
+     *
+     * @param $day
+     * @param Carbonate|null $end_dt
+     * @param string $format
+     * @param bool $to_string
+     * @return Carbonate|string - the date in Carbonate or string
+     */
+    public function anyOne($day, Carbonate $end_dt = null, $format = 'Y-m-d H:i:s', $to_string = true)
+    {
+        $result = $this->any($day, $end_dt, 1)->first();
         return $to_string ? $result->format($format) : $result;
     }
 }
