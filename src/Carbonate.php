@@ -57,7 +57,7 @@ class Carbonate extends Carbon
      *
      * @return int
      */
-    public function diffInMonthsFiltered(Closure $callback, Carbon $dt = null, $abs = true)
+    public function diffInMonthsFiltered(Closure $callback, Carbonate $dt = null, $abs = true)
     {
         return $this->diffFiltered(CarbonInterval::month(), $callback, $dt, $abs);
     }
@@ -66,12 +66,12 @@ class Carbonate extends Carbon
      * Get the difference in years using a filter closure
      *
      * @param Closure             $callback
-     * @param \Carbon\Carbon|null $dt
+     * @param \Carbonate\Carbonate|null $dt
      * @param bool                $abs      Get the absolute of the difference
      *
      * @return int
      */
-    public function diffInYearsFiltered(Closure $callback, Carbon $dt = null, $abs = true)
+    public function diffInYearsFiltered(Closure $callback, Carbonate $dt = null, $abs = true)
     {
         return $this->diffFiltered(CarbonInterval::year(), $callback, $dt, $abs);
     }
@@ -88,7 +88,7 @@ class Carbonate extends Carbon
      *
      * @return Collection|array - the difference count or collection of Carbon months Start
      */
-    public function diffIn(Carbon $dt, $in = 'months', $incl_last = false, $just_diff = false, $abs = true)
+    public function diffIn(Carbonate $dt, $in = 'months', $incl_last = false, $just_diff = false, $abs = true)
     {
         $time = $this;
         if ($just_diff) {
@@ -286,4 +286,19 @@ class Carbonate extends Carbon
         $result = $this->any($day, $end_dt, 1)->first();
         return $to_string ? $result->format($format) : $result;
     }
+
+    /**
+     * Turn the collection of Carbonate Dates to String dates
+     *
+     * @param Collection $dates
+     * @param string $format
+     * @return Collection - collection string dates
+     */
+    public static function stringify(Collection $dates, $format = 'Y-m-d H:i:s')
+    {
+        return $dates->transform(function(Carbonate $date, $key) use ($format){
+            return $date->format($format);
+        });
+    }
+
 }
