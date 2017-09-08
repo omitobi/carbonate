@@ -9,17 +9,25 @@ use Illuminate\Support\Collection;
 
 class Carbonate extends Carbon
 {
-    public function __construct($time = null, $tz = null)
+    public function __construct($time = null, $tz = 'Europe/Helsinki')
     {
-        date_default_timezone_set('Europe/Helsinki');
+//        date_default_timezone_set('Europe/Helsinki');
         parent::__construct($time, $tz);
     }
 
+    /**
+     * @param bool $end
+     * @return static
+     */
     public static function thisMonth($end = false)
     {
         return $end ? self::today()->copy()->endOfMonth() : self::today()->startOfMonth();
     }
 
+    /**
+     * @param array $days
+     * @return array
+     */
     public function getDatesOfDaysInMonth(array $days)
     {
         $start_of_month = $this->copy()->startOfMonth();
@@ -49,7 +57,7 @@ class Carbonate extends Carbon
      *
      * @return int
      */
-    public function diffInMonthsFiltered(Closure $callback, Carbon $dt = null, $abs = true)
+    public function diffInMonthsFiltered(Closure $callback, Carbonate $dt = null, $abs = true)
     {
         return $this->diffFiltered(CarbonInterval::month(), $callback, $dt, $abs);
     }
@@ -58,18 +66,17 @@ class Carbonate extends Carbon
      * Get the difference in years using a filter closure
      *
      * @param Closure             $callback
-     * @param \Carbon\Carbon|null $dt
+     * @param \Carbonate\Carbonate|null $dt
      * @param bool                $abs      Get the absolute of the difference
      *
      * @return int
      */
-    public function diffInYearsFiltered(Closure $callback, Carbon $dt = null, $abs = true)
+    public function diffInYearsFiltered(Closure $callback, Carbonate $dt = null, $abs = true)
     {
         return $this->diffFiltered(CarbonInterval::year(), $callback, $dt, $abs);
     }
 
     /**
-
      * Get the difference (of collection of Carbon dates or the count) in the given period
      *
      * @param \Carbonate\Carbonate |null $dt
@@ -80,7 +87,7 @@ class Carbonate extends Carbon
      *
      * @return Collection|array - the difference count or collection of Carbon months Start
      */
-    public function diffIn(Carbon $dt, $in = 'months', $incl_last = false, $just_diff = false, $abs = true)
+    public function diffIn(Carbonate $dt, $in = 'months', $incl_last = false, $just_diff = false, $abs = true)
     {
         $time = $this;
         if ($just_diff) {
@@ -95,4 +102,201 @@ class Carbonate extends Carbon
         $carbon_coll = $incl_last ? collect($collector)->push($dt) : collect($collector);
         return $carbon_coll;
     }
+
+
+    /**
+     * Get every particular dates within a range of dates
+     *
+     * @param $moment
+     * @param $dt
+     * @param null $to
+     * @return Collection
+     */
+    private function every($moment, $dt, $to = null)
+    {
+        $result = collect();
+        $this->{'diffIn'.ucfirst($moment).'sFiltered'}(function (Carbonate $date) use ($dt, $result){
+            if($date->{'is'.ucfirst($dt)}()) {
+                $result->push($date->toDateString());
+            }
+        }, $to);
+
+        return $result;
+    }
+
+    /**
+     * Get all particular days until a date
+     *
+     * @param string $day - day of the week e.g sunday
+     * @param Carbonate|null $to - becomes the end of the month if null
+     * @return Collection - collection of Carbonate Dates
+     */
+    public function everyDay(string $day, $to = null)
+    {
+        if ( $to == null) {
+            $to = $this->copy()->endOfMonth();
+        }
+        return $this->every('day', $day, $to);
+    }
+
+
+    /**
+     * Get random date(s) in the year
+     *
+     * @param Carbonate|null $end_dt
+     * @param int $amount
+     * @return Collection - collection of Carbonate
+     */
+    public function random($amount = 1, Carbonate $end_dt = null)
+    {
+        $end_dt = $end_dt ?: Carbonate::now()->copy()->endOfYear();
+
+        return $this->diffIn($end_dt, 'days')->random($amount)->values();
+    }
+
+    /**
+     * Get any random date between the two dates
+     *
+     * @param Carbonate|null $end_dt
+     * @return Carbonate
+     */
+    public function randomOne(Carbonate $end_dt = null)
+    {
+        return $this->random(1, $end_dt)->first();
+    }
+
+    /**
+     * Get any One Monday between the dates or till the end of the year
+     *
+     * @param Carbonate|null $end_dt
+     * @return Carbonate|string
+     */
+    public function anyMonday(Carbonate $end_dt = null)
+    {
+        return $this->anyOne('Monday', $end_dt);
+    }
+
+    /**
+     * Get any One Tuesday between the dates or till the end of the year
+     *
+     * @param Carbonate|null $end_dt
+     * @return Carbonate|string
+     */
+    public function anyTuesday(Carbonate $end_dt = null)
+    {
+        return $this->anyOne('Tuesday', $end_dt);
+    }
+
+    /**
+     * Get any One Wednesday between the dates or till the end of the year
+     *
+     * @param Carbonate|null $end_dt
+     * @return Carbonate
+     */
+    public function anyWednesday(Carbonate $end_dt = null)
+    {
+        return $this->anyOne('Wednesday', $end_dt);
+    }
+
+    /**
+     * Get any One Thursday between the dates or till the end of the year
+     *
+     * @param Carbonate|null $end_dt
+     * @return Carbonate
+     */
+    public function anyThursday(Carbonate $end_dt = null, $format = 'Y-m-d H:i:s')
+    {
+        return $this->anyOne('Thursday', $end_dt);
+    }
+
+    /**
+     * Get any One Friday between the dates or till the end of the year
+     *
+     * @param Carbonate|null $end_dt
+     * @return Carbonate|string
+     */
+    public function anyFriday(Carbonate $end_dt = null)
+    {
+        return $this->anyOne('Friday', $end_dt);
+    }
+
+    /**
+     * Get any One Saturday between the dates or till the end of the year
+     *
+     * @param Carbonate|null $end_dt
+     * @return Carbonate
+     */
+    public function anySaturday(Carbonate $end_dt = null)
+    {
+        return $this->anyOne('Saturday', $end_dt);
+    }
+
+    /**
+     * Get any One Sunday between the dates or till the end of the year
+     *
+     * @param Carbonate|null $end_dt
+     * @return Carbonate
+     */
+    public function anySunday(Carbonate $end_dt = null)
+    {
+        return $this->anyOne('Sunday', $end_dt);
+    }
+
+    /**
+     * Get any random date(s) of the given day
+     *
+     * @param string $day
+     * @param Carbonate|null $end_dt
+     * @param int $amount
+     * @return Collection - collections of Carbonate
+     */
+    private function any($day = 'Monday', Carbonate $end_dt = null, $amount = 1)
+    {
+        $end_dt = $end_dt ?: $this->copy()->endOfYear();
+
+        return $result = $this->diffIn($end_dt, 'days')->filter(function (Carbonate $date, $key) use ($day){
+            return $date->{'is'.ucfirst($day)}();
+        })->random($amount);
+    }
+
+    /**
+     * Get any of the week's day in the range of Dates
+     *
+     * @param $day
+     * @param Carbonate|null $end_dt
+     * @return Carbonate|string - the date in Carbonate or string
+     */
+    public function anyOne($day, Carbonate $end_dt = null)
+    {
+        return $this->any($day, $end_dt, 1)->first();
+    }
+
+    /**
+     * Turn the collection of Carbonate Dates to String dates
+     *
+     * @param Collection $dates
+     * @param string $format
+     * @return Collection - collection string dates
+     */
+    public static function stringify(Collection $dates, $format = 'Y-m-d H:i:s')
+    {
+        return $dates->transform(function(Carbonate $date) use ($format){
+            return $date->format($format);
+        });
+    }
+
+    /**
+     * Transform arrayed date string into Carbonate collection
+     *
+     * @param array $dates
+     * @return Collection - collection of Carbonate
+     */
+    public static function carbonate(array $dates)
+    {
+        return collect($dates)->transform(function ($date) {
+           return self::parse($date);
+        });
+    }
+
+    //todo: reduce the number of parameters required by diffIn()
 }
