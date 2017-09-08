@@ -301,4 +301,18 @@ class Carbonate extends Carbon
         });
     }
 
+    /**
+     * Transform arrayed string into Carbonate collection
+     *
+     * @param array $dates
+     * @return Collection - collection of Carbonate
+     */
+    public static function carbonate(array $dates)
+    {
+        return collect($dates)->transform(function ($date) {
+           return self::parse($date);
+        });
+    }
+
+    //todo: reduce the number of parameters required by some of the functions
 }
