@@ -298,5 +298,17 @@ class Carbonate extends Carbon
         });
     }
 
+    public function weekends(Carbonate $end)
+    {
+        $result = collect();
+        $this->diffInDaysFiltered(function (Carbonate $dt) use ($result){
+            if ($dt->isWeekend()) {
+                $result->push($dt);
+            }
+        }, $end);
+
+        return $result;
+    }
+
     //todo: reduce the number of parameters required by diffIn()
 }
