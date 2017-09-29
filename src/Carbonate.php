@@ -141,7 +141,7 @@ class Carbonate extends Carbon
      * @param Carbonate|null $to
      * @return Collection
      */
-    public function everyWeekDay(Carbonate $to = null)
+    public function everyWeekDays(Carbonate $to = null)
     {
         return $this->every('day', 'weekday', $to);
     }

@@ -47,7 +47,7 @@ class CarbonateTest extends PHPUnit_Framework_TestCase {
     public function testEveryWeekDay()
     {
         $carbonate = new Carbonate('2017-09-01');
-        $this->assertEquals(21, $carbonate->everyWeekDay()->count());
+        $this->assertEquals(21, $carbonate->everyWeekDays()->count());
     }
 
     public function testEveryWeekend()

@@ -18,6 +18,39 @@ For the `dev-master` simply change the version to `dev-master`
 
 Another option is to clone the dev-master branch and you can have the bleeding version
 
+#### Requirements
+Minimum: PHP 5.6.4
+
+#### Usage:
+
+```$php
+$mydate = new Carbonate('2017-09-01');
+
+$mydate->thisMonth();
+$mydate->getDatesOfDaysInMonth(['Monday', 'Saturday']);
+$mydate->everyWeekend();
+$mydate->everyWeekDays();
+$mydate->everyWeekDays();
+$mydate->everyWeekend();
+$mydate->everyWeekDays();
+$mydate->everyDay('Monday');
+$mydate->random(2);
+$mydate->randomOne();
+$mydate->anyMonday();
+$mydate->anyTuesday();
+$mydate->anyWednesday();
+$mydate->anyThursday();
+$mydate->anyFriday();
+$mydate->anySaturday();
+$mydate->anySunday();
+$mydate->any();
+$mydate->anyOne('Monday');
+$mydate->stringify(collect([Carbonate::now(), Carbonate::now()->addDay(1)]));
+$mydate->carbonate(['today', 'tomorrow']);
+$mydate->weekends(Carbonate::now()->addDay(7);
+
+```
+
 #### Info
 Most of the functions are not YET adequately tested and there is heavy changes in order to ensure they are indeed useful so please use with care (not in production)
 
