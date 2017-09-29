@@ -109,19 +109,41 @@ class Carbonate extends Carbon
      *
      * @param $moment
      * @param $dt
-     * @param null $to
+     * @param Carbonate null $to
      * @return Collection
      */
-    private function every($moment, $dt, $to = null)
+    private function every($moment, $dt, Carbonate $to = null)
     {
         $result = collect();
-        $this->{'diffIn'.ucfirst($moment).'sFiltered'}(function (Carbonate $date) use ($dt, $result){
+        $this->startOfDay()->{'diffIn'.ucfirst($moment).'sFiltered'}(function (Carbonate $date) use ($dt, $result){
             if($date->{'is'.ucfirst($dt)}()) {
-                $result->push($date->toDateString());
+                $result->push($date);
             }
         }, $to);
 
         return $result;
+    }
+
+    /**
+     * Get collection of weekend dates
+     *
+     * @param Carbonate|null $to
+     * @return Collection
+     */
+    public function everyWeekend(Carbonate $to = null)
+    {
+        return $this->every('day', 'weekend', $to);
+    }
+
+    /**
+     * Get collection of weekday dates
+     *
+     * @param Carbonate|null $to
+     * @return Collection
+     */
+    public function everyWeekDays(Carbonate $to = null)
+    {
+        return $this->every('day', 'weekday', $to);
     }
 
     /**
@@ -131,7 +153,7 @@ class Carbonate extends Carbon
      * @param Carbonate|null $to - becomes the end of the month if null
      * @return Collection - collection of Carbonate Dates
      */
-    public function everyDay(string $day, $to = null)
+    public function everyDay($day, $to = null)
     {
         if ( $to == null) {
             $to = $this->copy()->endOfMonth();
@@ -298,5 +320,19 @@ class Carbonate extends Carbon
         });
     }
 
+    public function weekends(Carbonate $end)
+    {
+        $result = collect();
+        $this->diffInDaysFiltered(function (Carbonate $dt) use ($result){
+            if ($dt->isWeekend()) {
+                $result->push($dt);
+            }
+        }, $end);
+
+        return $result;
+    }
+
     //todo: reduce the number of parameters required by diffIn()
+    //todo: check inclusion of the last days in all 'diffIn...' functions
+    //todo: check that the dates are reset to start of day where needed
 }
