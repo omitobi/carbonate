@@ -153,7 +153,7 @@ class Carbonate extends Carbon
      * @param Carbonate|null $to - becomes the end of the month if null
      * @return Collection - collection of Carbonate Dates
      */
-    public function everyDay(string $day, $to = null)
+    public function everyDay($day, $to = null)
     {
         if ( $to == null) {
             $to = $this->copy()->endOfMonth();
