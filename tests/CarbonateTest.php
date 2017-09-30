@@ -24,36 +24,41 @@ class CarbonateTest extends PHPUnit_Framework_TestCase {
 
     public function testDiffInMonthsFiltered()
     {
-        $carbonate = new Carbonate();
-        $this->assertEquals(2, $carbonate->addMonth(2)->diffInMonthsFiltered(function(Carbonate $dt) {
+        $from = new Carbonate('2017-11-01');
+        $until = new Carbonate('2017-09-01');
+        $this->assertEquals(2, $from->diffInMonthsFiltered(function(Carbonate $dt) {
             return  $dt;
-        }));
+        }, $until));
     }
 
     public function testDiffInMonthsYears()
     {
-        $carbonate = new Carbonate();
-        $this->assertEquals(2, $carbonate->addYear(2)->diffInYearsFiltered(function(Carbonate $dt) {
+        $from = new Carbonate('2019-09-01');
+        $until = new Carbonate('2017-09-01');
+        $this->assertEquals(2, $from->diffInYearsFiltered(function(Carbonate $dt) {
             return  $dt;
-        }));
+        }, $until));
     }
 
     public function testEveryWithDays()
     {
-        $carbonate = new Carbonate('2017-09-01');
-        $this->assertEquals(4, $carbonate->everyDay('Monday')->count());
+        $from = new Carbonate('2017-09-01');
+        $until = new Carbonate('2017-09-30');
+        $this->assertEquals(4, $from->everyDay('Monday', $until)->count());
     }
 
     public function testEveryWeekDay()
     {
-        $carbonate = new Carbonate('2017-09-01');
-        $this->assertEquals(21, $carbonate->everyWeekDays()->count());
+        $from = new Carbonate('2017-09-01');
+        $until = new Carbonate('2017-09-30');
+        $this->assertEquals(21, $from->everyWeekDays($until)->count());
     }
 
     public function testEveryWeekend()
     {
-        $carbonate = new Carbonate('2017-09-01');
-        $this->assertEquals(8, $carbonate->everyWeekend()->count());
+        $from = new Carbonate('2017-09-01');
+        $until = new Carbonate('2017-09-30');
+        $this->assertEquals(8, $from->everyWeekend($until)->count());
     }
 
     public function testRandom()
