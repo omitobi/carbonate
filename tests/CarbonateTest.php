@@ -58,7 +58,7 @@ class CarbonateTest extends PHPUnit_Framework_TestCase {
     {
         $from = new Carbonate('2017-09-01');
         $until = new Carbonate('2017-09-30');
-        $this->assertEquals(8, $from->everyWeekend($until)->count());
+        $this->assertEquals(8, $from->everyWeekendDays($until)->count());
     }
 
     public function testRandom()
