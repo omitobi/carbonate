@@ -6,10 +6,15 @@ use Closure;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
 use Illuminate\Support\Collection;
+use Prophecy\Exception\Exception;
 
 class Carbonate extends Carbon
 {
-    public function __construct($time = null, $tz = 'Europe/Helsinki')
+    const ALLOWED_DIFFS = [
+        'days', 'months', 'years', 'weeks', 'days', 'hours', 'minutes', 'seconds'
+    ];
+
+    public function __construct($time = null, $tz = 'UTC')
     {
 //        date_default_timezone_set('Europe/Helsinki');
         parent::__construct($time, $tz);
@@ -25,6 +30,8 @@ class Carbonate extends Carbon
     }
 
     /**
+     * Get the dates of some particular days - from the start of the month to the end
+     *
      * @param array $days
      * @return array
      */
@@ -46,6 +53,34 @@ class Carbonate extends Carbon
         }, $end_of_month);
 
         return $the_dates;
+    }
+
+    /**
+     * Get the difference in minutes using a filter closure
+     *
+     * @param Closure             $callback
+     * @param \Carbonate\Carbonate|null $dt
+     * @param bool                $abs      Get the absolute of the difference
+     *
+     * @return int
+     */
+    public function diffInMinutesFiltered(Closure $callback, Carbonate $dt = null, $abs = true)
+    {
+        return $this->diffFiltered(CarbonInterval::minute(), $callback, $dt, $abs);
+    }
+
+    /**
+     * Get the difference in weeks using a filter closure
+     *
+     * @param Closure             $callback
+     * @param \Carbonate\Carbonate|null $dt
+     * @param bool                $abs      Get the absolute of the difference
+     *
+     * @return int
+     */
+    public function diffInWeeksFiltered(Closure $callback, Carbonate $dt = null, $abs = true)
+    {
+        return $this->diffFiltered(CarbonInterval::week(), $callback, $dt, $abs);
     }
 
     /**
@@ -103,6 +138,119 @@ class Carbonate extends Carbon
         return $carbon_coll;
     }
 
+    /**
+     * Retrieve dates within two dates as a collection of dates
+     *
+     * @param Carbonate|null $dt
+     * @param string $in
+     * @param bool $abs
+     * @return Collection
+     */
+    private function within(Carbonate $dt = null, $in = 'months', $abs = true)
+    {
+        static::checkAllowedDiffs($in);
+
+        $collector = collect();
+
+        $diffIn = 'diffIn'.ucfirst($in).'Filtered';
+//        dd('startOf'.substr(ucfirst($in), 0, -1));
+
+        $count = $this->{$diffIn}(function (Carbonate $date) use (&$collector, $in) {
+
+            $collector->push( $date );
+
+        }, $dt, $abs);
+
+        return $count ? $collector->push($dt) : $collector;
+    }
+
+
+    /**
+     * Retrieve years' dates within two dates as a collection of dates
+     *
+     * @param Carbonate|null $dt
+     * @param bool $abs
+     * @return Collection
+     */
+    public function withinYears(Carbonate $dt = null, $abs = true)
+    {
+        return $this->within($dt, 'years', $abs);
+    }
+
+    /**
+     * Retrieve months' dates within two dates as a collection of dates
+     *
+     * @param Carbonate|null $dt
+     * @param bool $abs
+     * @return Collection
+     */
+    public function withinMonths(Carbonate $dt = null, $abs = true)
+    {
+        return $this->within($dt, 'months', $abs);
+    }
+
+    /**
+     * Retrieve weeks' dates within two dates as a collection of dates
+     *
+     * @param Carbonate|null $dt
+     * @param bool $abs
+     * @return Collection
+     */
+    public function withinWeeks(Carbonate $dt = null, $abs = true)
+    {
+        return $this->within($dt, 'weeks', $abs);
+    }
+
+    /**
+     * Retrieve days' dates within two dates as a collection of dates
+     *
+     * @param Carbonate|null $dt
+     * @param bool $abs
+     * @return Collection
+     */
+    public function withinDays(Carbonate $dt = null, $abs = true)
+    {
+        return $this->within($dt, 'days', $abs);
+    }
+
+    /**
+     * Retrieve hours' dates within two dates as a collection of dates
+     *
+     * @param Carbonate|null $dt
+     * @param bool $abs
+     * @return Collection
+     */
+    public function withinHours(Carbonate $dt = null, $abs = true)
+    {
+        return $this->within($dt, 'hours', $abs);
+    }
+
+    /**
+     * Retrieve minutes' dates within two dates as a collection of dates
+     *
+     * @param Carbonate|null $dt
+     * @param bool $abs
+     * @return Collection
+     */
+    public function withinMinutes(Carbonate $dt = null, $abs = true)
+    {
+        return $this->within($dt, 'minutes', $abs);
+    }
+
+    /**
+     * Check if a diff type is allowed
+     *
+     * @param $diff_type
+     * @return \Exception|bool
+     */
+    public final static function checkAllowedDiffs($diff_type)
+    {
+        if (! in_array(strtolower($diff_type), static::ALLOWED_DIFFS)) {
+            return new \Exception("The given '$diff_type' diff cannot be made");
+        }
+
+        return true;
+    }
 
     /**
      * Get every particular dates within a range of dates
@@ -335,4 +483,6 @@ class Carbonate extends Carbon
     //todo: reduce the number of parameters required by diffIn()
     //todo: check inclusion of the last days in all 'diffIn...' functions
     //todo: check that the dates are reset to start of day where needed
+    //todo.new: diffHours(), diffMinutes(), diffSeconds()
+    //todo.new: endOfHour(), endOfMinutes()
 }
