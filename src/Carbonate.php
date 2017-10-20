@@ -6,7 +6,6 @@ use Closure;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
 use Illuminate\Support\Collection;
-use Prophecy\Exception\Exception;
 
 class Carbonate extends Carbon
 {
@@ -278,7 +277,7 @@ class Carbonate extends Carbon
      * @param Carbonate|null $to
      * @return Collection
      */
-    public function everyWeekend(Carbonate $to = null)
+    public function everyWeekendDays(Carbonate $to = null)
     {
         return $this->every('day', 'weekend', $to);
     }
@@ -444,13 +443,13 @@ class Carbonate extends Carbon
     /**
      * Turn the collection of Carbonate Dates to String dates
      *
-     * @param Collection $dates
+     * @param Collection|array $dates
      * @param string $format
      * @return Collection - collection string dates
      */
-    public static function stringify(Collection $dates, $format = 'Y-m-d H:i:s')
+    public static function stringify($dates, $format = 'Y-m-d H:i:s')
     {
-        return $dates->transform(function(Carbonate $date) use ($format){
+        return Collection::make($dates)->transform(function(Carbonate $date) use ($format){
             return $date->format($format);
         });
     }
@@ -461,9 +460,9 @@ class Carbonate extends Carbon
      * @param array $dates
      * @return Collection - collection of Carbonate
      */
-    public static function carbonate(array $dates)
+    public static function carbonate($dates)
     {
-        return collect($dates)->transform(function ($date) {
+        return Collection::make($dates)->transform(function ($date) {
            return self::parse($date);
         });
     }
@@ -471,10 +470,8 @@ class Carbonate extends Carbon
     public function weekends(Carbonate $end)
     {
         $result = collect();
-        $this->diffInDaysFiltered(function (Carbonate $dt) use ($result){
-            if ($dt->isWeekend()) {
+        $this->diffInWeekendDays(function (Carbonate $dt) use ($result){
                 $result->push($dt);
-            }
         }, $end);
 
         return $result;
