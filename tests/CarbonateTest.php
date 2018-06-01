@@ -4,6 +4,10 @@ use \Carbonate\Carbonate;
 
 class CarbonateTest extends PHPUnit_Framework_TestCase {
 
+    public function collect($items = []) {
+       return \Illuminate\Support\Collection::make($items);
+    }
+
     public function testIsThisMonthFromStart()
     {
         $carbonate = new Carbonate();
@@ -31,7 +35,7 @@ class CarbonateTest extends PHPUnit_Framework_TestCase {
         }, $until));
     }
 
-    public function testDiffInMonthsYears()
+    public function testDiffInYears()
     {
         $from = new Carbonate('2019-09-01');
         $until = new Carbonate('2017-09-01');
@@ -81,14 +85,14 @@ class CarbonateTest extends PHPUnit_Framework_TestCase {
 
     public function testStringify()
     {
-        $carbonates = collect([
+        $carbonates = $this->collect([
            Carbonate::parse('2017-09-01'),
            Carbonate::parse('2017-09-01')->addYear(1),
            Carbonate::parse('2017-09-01')->addMonth(),
            Carbonate::parse('2017-09-01')->addDay(),
         ]);
 
-        $expect = collect([
+        $expect = $this->collect([
             '2017-09-01 00:00:00',
             '2018-09-01 00:00:00',
             '2017-10-01 00:00:00',
@@ -107,7 +111,7 @@ class CarbonateTest extends PHPUnit_Framework_TestCase {
             '2017-09-02 00:00:00'
         ];
 
-        $expected = collect([
+        $expected = $this->collect([
             Carbonate::parse('2017-09-01'),
             Carbonate::parse('2017-09-01')->addYear(1),
             Carbonate::parse('2017-09-01')->addMonth(),

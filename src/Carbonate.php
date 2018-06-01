@@ -130,7 +130,7 @@ class Carbonate extends Carbon
      *
      * @return Collection|array - the difference count or collection of Carbon months Start
      */
-    private function diffIn(Carbonate $dt = null, $in = 'months', $incl_last = false, $abs = true)
+    private function diffIn(Carbonate $dt = null, $in = 'months', $incl_last = true, $abs = true)
     {
         $this->checkAllowedDiffs($in);
         $collector = $this->collect();
@@ -316,21 +316,19 @@ class Carbonate extends Carbon
 
 
     /**
-     * Get random date(s) in the year
+     * Get random date(s) within the two dates
      *
-     * @param Carbonate|null $end_dt
      * @param int $amount
+     * @param Carbonate|null $end_dt
      * @return Collection - collection of Carbonate
      */
     public function random($amount = 1, Carbonate $end_dt = null)
     {
-        $end_dt = $end_dt ?: Carbonate::now()->copy()->endOfYear();
-
-        return $this->diffIn($end_dt, 'days')->random($amount)->values();
+        return $this->diffIn($end_dt, 'days')->random($amount);
     }
 
     /**
-     * Get any random date between the two dates
+     * Get any one random date between the two dates
      *
      * @param Carbonate|null $end_dt
      * @return Carbonate
@@ -468,17 +466,25 @@ class Carbonate extends Carbon
      */
     public static function carbonate($dates)
     {
-        return Collection::make($dates)->transform(function ($date) {
+        return static::collect($dates)->transform(function ($date) {
            return self::parse($date);
         });
     }
 
+    /**
+     * Get all weekends dates as collection
+     *
+     * @param Carbonate $end - till this date
+     * @return Collection
+     */
     public function weekends(Carbonate $end)
     {
         $result = collect();
-        $this->diffInWeekendDays(function (Carbonate $dt) use ($result){
+        $this->diffIn($end, 'days')->filter(function (Carbonate $dt) use ($result){
+            if ($dt->isWeekend()) {
                 $result->push($dt);
-        }, $end);
+            }
+        });
 
         return $result;
     }
@@ -488,4 +494,5 @@ class Carbonate extends Carbon
     //todo: check that the dates are reset to start of day where needed
     //todo.new: diffHours(), diffMinutes(), diffSeconds()
     //todo.new: endOfHour(), endOfMinutes()
+    //todo.refactor: filter the date diff instead of applying collection filter
 }
