@@ -5,7 +5,7 @@ use \Carbonate\Carbonate;
 class CarbonateTest extends PHPUnit_Framework_TestCase {
 
     public function collect($items = []) {
-       return \Illuminate\Support\Collection::make($items);
+       return \Tightenco\Collect\Support\Collection::make($items);
     }
 
     public function testIsThisMonthFromStart()

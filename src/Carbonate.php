@@ -5,7 +5,7 @@ namespace Carbonate;
 use Closure;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
-use Illuminate\Support\Collection;
+use Tightenco\Collect\Support\Collection;
 
 class Carbonate extends Carbon
 {
