@@ -51,7 +51,7 @@ Illuminate\Support\Collection Object ( [items:protected] => Array (
 ```php
 // Verify if the last Carbon instance is actually weekend
 
-$result->everyWeekendDays($enddate)->last()->isWeekend();
+$mydate->everyWeekendDays($enddate)->last()->isWeekend();
 ```
 
 #### The result of the operations is shown as transformed from Carbon/Carbonate object to string using `stringify()`
