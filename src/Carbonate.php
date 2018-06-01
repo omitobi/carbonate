@@ -111,30 +111,36 @@ class Carbonate extends Carbon
     }
 
     /**
-     * Get the difference (of collection of Carbon dates or the count) in the given period
+     * Make a collection instance
+     * @param array $items
+     * @return Collection
+     */
+    private static function collect($items = [])
+    {
+        return Collection::make($items);
+    }
+
+    /**
+     * Get the difference between two dates as a collection of Carbonate dates
      *
      * @param \Carbonate\Carbonate |null $dt
      * @param string $in - diff in 'days', 'months', 'years', 'hours', 'minutes', or  'seconds'
-     * @param string $incl_last - include the checked date in the difference [only when getting dates]
-     * @param string $just_diff
-     * @param bool   $abs Get the absolute of the difference for count
+     * @param false $incl_last - include the checked date in the difference [only when getting dates]
+     * @param bool $abs Get the absolute of the difference for count
      *
      * @return Collection|array - the difference count or collection of Carbon months Start
      */
-    public function diffIn(Carbonate $dt, $in = 'months', $incl_last = false, $just_diff = false, $abs = true)
+    private function diffIn(Carbonate $dt = null, $in = 'months', $incl_last = true, $abs = true)
     {
-        $time = $this;
-        if ($just_diff) {
-            return $time->{'diffIn' . ucfirst($in)}($dt, $abs);
-        }
-
-        $collector = [];
-        $time->{'diffIn'.ucfirst($in).'Filtered'}(function (Carbon $date) use (&$collector, $in){
-            $collector[] = $date->{'startOf'.substr(ucfirst($in), 0, -1)}();
+        $this->checkAllowedDiffs($in);
+        $collector = $this->collect();
+        $this->{'diffIn'.ucfirst($in).'Filtered'}(function (Carbonate $date) use ($collector, $in){
+            $collector->push($date);
         }, $dt, $abs);
 
-        $carbon_coll = $incl_last ? collect($collector)->push($dt) : collect($collector);
-        return $carbon_coll;
+        return $incl_last
+            ? $collector->push($dt)
+            : $collector;
     }
 
     /**
@@ -310,21 +316,19 @@ class Carbonate extends Carbon
 
 
     /**
-     * Get random date(s) in the year
+     * Get random date(s) within the two dates
      *
-     * @param Carbonate|null $end_dt
      * @param int $amount
+     * @param Carbonate|null $end_dt
      * @return Collection - collection of Carbonate
      */
     public function random($amount = 1, Carbonate $end_dt = null)
     {
-        $end_dt = $end_dt ?: Carbonate::now()->copy()->endOfYear();
-
-        return $this->diffIn($end_dt, 'days')->random($amount)->values();
+        return $this->diffIn($end_dt, 'days')->random($amount);
     }
 
     /**
-     * Get any random date between the two dates
+     * Get any one random date between the two dates
      *
      * @param Carbonate|null $end_dt
      * @return Carbonate
@@ -462,17 +466,25 @@ class Carbonate extends Carbon
      */
     public static function carbonate($dates)
     {
-        return Collection::make($dates)->transform(function ($date) {
+        return static::collect($dates)->transform(function ($date) {
            return self::parse($date);
         });
     }
 
+    /**
+     * Get all weekends dates as collection
+     *
+     * @param Carbonate $end - till this date
+     * @return Collection
+     */
     public function weekends(Carbonate $end)
     {
         $result = collect();
-        $this->diffInWeekendDays(function (Carbonate $dt) use ($result){
+        $this->diffIn($end, 'days')->filter(function (Carbonate $dt) use ($result){
+            if ($dt->isWeekend()) {
                 $result->push($dt);
-        }, $end);
+            }
+        });
 
         return $result;
     }
@@ -482,4 +494,5 @@ class Carbonate extends Carbon
     //todo: check that the dates are reset to start of day where needed
     //todo.new: diffHours(), diffMinutes(), diffSeconds()
     //todo.new: endOfHour(), endOfMinutes()
+    //todo.refactor: filter the date diff instead of applying collection filter
 }
