@@ -129,6 +129,3 @@ $mydate->weekends(Carbonate::now()->addDay(7));
 Most of the functions are not YET adequately tested and there is heavy changes in order to ensure they are indeed useful so please use with care (not in production)
 
 ## Contributions
-##### More suggestions of useful functionality is welcome to make this an indeed useful work
-
-## version pre-Alpha 0.0.1a
