@@ -1,8 +1,9 @@
 <?php
+namespace Tests;
 
 use \Carbonate\Carbonate;
 
-class CarbonateTest extends PHPUnit_Framework_TestCase {
+class CarbonateTest extends \PHPUnit_Framework_TestCase {
 
     public function collect($items = []) {
        return \Tightenco\Collect\Support\Collection::make($items);
@@ -126,6 +127,4 @@ class CarbonateTest extends PHPUnit_Framework_TestCase {
         $carbonate = new Carbonate('2017-09-01');
         $this->assertEquals(2, $carbonate->weekends(Carbonate::parse('2017-09-07'))->count());
     }
-
-
 }

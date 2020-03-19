@@ -1,7 +1,6 @@
 <?php
 namespace Carbonate;
 
-
 use Closure;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
