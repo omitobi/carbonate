@@ -1,11 +1,10 @@
 <?php
 namespace Carbonate;
 
-
 use Closure;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
-use Illuminate\Support\Collection;
+use \Tightenco\Collect\Support\Collection;
 
 class Carbonate extends Carbon
 {
@@ -15,7 +14,6 @@ class Carbonate extends Carbon
 
     public function __construct($time = null, $tz = 'UTC')
     {
-//        date_default_timezone_set('Europe/Helsinki');
         parent::__construct($time, $tz);
     }
 
@@ -153,12 +151,11 @@ class Carbonate extends Carbon
      */
     private function within(Carbonate $dt = null, $in = 'months', $abs = true)
     {
-        static::checkAllowedDiffs($in);
+        $this->checkAllowedDiffs($in);
 
         $collector = collect();
 
         $diffIn = 'diffIn'.ucfirst($in).'Filtered';
-//        dd('startOf'.substr(ucfirst($in), 0, -1));
 
         $count = $this->{$diffIn}(function (Carbonate $date) use (&$collector, $in) {
 
@@ -248,7 +245,7 @@ class Carbonate extends Carbon
      * @param $diff_type
      * @return \Exception|bool
      */
-    public final static function checkAllowedDiffs($diff_type)
+    private final function checkAllowedDiffs($diff_type)
     {
         if (! in_array(strtolower($diff_type), static::ALLOWED_DIFFS)) {
             return new \Exception("The given '$diff_type' diff cannot be made");
@@ -488,11 +485,4 @@ class Carbonate extends Carbon
 
         return $result;
     }
-
-    //todo: reduce the number of parameters required by diffIn()
-    //todo: check inclusion of the last days in all 'diffIn...' functions
-    //todo: check that the dates are reset to start of day where needed
-    //todo.new: diffHours(), diffMinutes(), diffSeconds()
-    //todo.new: endOfHour(), endOfMinutes()
-    //todo.refactor: filter the date diff instead of applying collection filter
 }
