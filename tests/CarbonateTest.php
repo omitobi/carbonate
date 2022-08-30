@@ -72,11 +72,11 @@ class CarbonateTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals(5, $carbonate->random(5)->count());
     }
 
-    public function testRandomOne()
-    {
-        $carbonate = new Carbonate('2017-09-01');
-        $this->assertNotNull(5, $carbonate->randomOne());
-    }
+//    public function testRandomOne()
+//    {
+//        $carbonate = new Carbonate('2017-09-01');
+//        $this->assertNotNull(5, $carbonate->randomOne());
+//    }
 
     public function testAnyOne()
     {

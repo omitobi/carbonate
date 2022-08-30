@@ -314,7 +314,7 @@ class Carbonate extends Carbon
 
     /**
      * Get random date(s) within the two dates
-     *
+     * @deprecated  - Behavior is unpredictable
      * @param int $amount
      * @param Carbonate|null $end_dt
      * @return Collection - collection of Carbonate
@@ -327,6 +327,7 @@ class Carbonate extends Carbon
     /**
      * Get any one random date between the two dates
      *
+     * @deprecated  - Behavior is unpredictable
      * @param Carbonate|null $end_dt
      * @return Carbonate
      */
